@@ -48,6 +48,8 @@ module ApolloUploadServer
     end
 
     def safe_json_parse(data)
+      return data if data.is_a? Hash
+
       JSON.parse(data)
     rescue JSON::ParserError
       nil

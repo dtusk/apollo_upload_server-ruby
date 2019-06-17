@@ -28,6 +28,32 @@ describe ApolloUploadServer::GraphQLDataBuilder do
     end
   end
 
+  describe '#call accepts not jsonified attributes' do
+    let(:params) do
+      {
+        'operations' => {
+          'query' => 'mutation { blah blah }',
+          'operationName' => 'SomeOperation',
+          'variables' => { 'input' => { 'id' => '123', 'model' => {} } }
+        },
+        'map' => { '0' => ['variables.input.avatar', 'variables.input.model.avatar'] },
+        '0' => :file0
+      }
+    end
+
+    let(:expected_params) do
+      {
+        'query' => 'mutation { blah blah }',
+        'operationName' => 'SomeOperation',
+        'variables' => { 'input' => { 'id' => '123', 'avatar' => :file0, 'model' => { 'avatar' => :file0 } } }
+      }
+    end
+
+    specify do
+      expect(described_class.new.call(params)).to eq(expected_params)
+    end
+  end
+
   describe '#call for single operation with multiple files' do
     let(:params) do
       {
